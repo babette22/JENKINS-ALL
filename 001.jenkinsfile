@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'FIRST_NAME', defaultValue: '', description: 'Enter your first name')
+        string(name: 'LAST_NAME', defaultValue: '', description: 'Enter your last name')
+        choice(name: 'FRUITS', choices: ['pineapple', 'orange', 'plums', 'blueberries', 'strawberries', 'cantaloupe'], description: 'Select your favorite fruit')
+        string(name: 'PIN', defaultValue: '', description: 'Enter your PIN')
+        booleanParam(name: 'INSTALL', defaultValue: false, description: 'Check to install')
+    }
+
+    stages {
+        stage('Sample Stage') {
+            steps {
+                echo "First Name: ${params.FIRST_NAME}"
+                echo "Last Name: ${params.LAST_NAME}"
+                echo "Favorite Fruit: ${params.FRUITS}"
+                echo "PIN: ${params.PIN}"
+                echo "Install: ${params.INSTALL}"
+            }
+        }
+    }
+}
