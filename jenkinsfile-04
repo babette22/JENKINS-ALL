@@ -1,0 +1,39 @@
+pipeline {
+    agent { label 'SERVER03' }
+    
+    parameters {
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Git branch to clone')
+        string(name: 'DOCKERFILE_NAME', defaultValue: 'dokerfile-halloween.dockerfile', description: 'Name of the Dockerfile')
+        string(name: 'DOCKER_IMAGE_NAME', defaultValue: 'my-docker-image', description: 'Name of the Docker image to build')
+        string(name: 'CONTAINER_NAME', defaultValue: 'my-container', description: 'Name of the Docker container')
+        string(name: 'PORT_MAPPING', defaultValue: '8080:80', description: 'Port mapping for the Docker container')
+    }
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-agents-private-key', keyFileVariable: 'SSH_KEY')]) {
+                        git branch: "${params.GIT_BRANCH}", credentialsId: 'jenkins-ssh-agents-private-key', url: 'git@github.com:babette22/JENKINS-ALL.git'
+                        echo "Cloned repository successfully"
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${params.DOCKER_IMAGE_NAME} -f ${params.DOCKERFILE_NAME} ."
+            }
+        }
+        
+        stage('Run Docker Container') {
+            steps {
+                sh "docker run -d --name ${params.CONTAINER_NAME} -p ${params.PORT_MAPPING} ${params.DOCKER_IMAGE_NAME}"
+            }
+        }
+        
+        // Add more stages as needed
+    }
+    // Post-build actions, notifications, etc.
+}
